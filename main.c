@@ -59,12 +59,78 @@ CreateOpenGLWindow(void)
 	return Result;
 }
 
+char* VertexShaderSource =
+{
+	"#version 330 core\n"
+	"layout(location = 0) in vec3 Position;\n"
+	"void main()\n"
+	"{\n"
+	"\tgl_Position = vec4(Position.x, Position.y, Position.z, 1.0f);\n"
+	"}\n"
+};
+
+char* FragmentShaderSource =
+{
+	"#version 330 core\n"
+	"out vec4 FragmentColor;\n"
+	"void main()\n"
+	"{\n"
+	"\tFragmentColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+	"}\n"
+};
+
 void WinMainCRTStartup()
 {
 	HWND Window = CreateOpenGLWindow();
 	HDC WindowDC = GetDC(Window);
 	SetOpenGLContext(Window);
 	LoadOpenGLFunctions();
+	float Vertices[] =
+	{
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
+	};
+	GLuint VertexBuffer = 0;
+	glGenBuffers(1, &VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+	GLuint VertexArray;
+	glGenVertexArrays(1, &VertexArray);
+	glBindVertexArray(VertexArray);
+	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
+	glCompileShader(VertexShader);
+	GLint Status = 0;
+	glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &Status);
+	char ErrorLog[512];
+	if(Status == GL_FALSE)
+	{
+		glGetShaderInfoLog(VertexShader, sizeof(ErrorLog), 0, ErrorLog);
+	}
+	GLuint FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(FragmentShader, 1, &FragmentShaderSource, 0);
+	glCompileShader(FragmentShader);
+	glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &Status);
+	if (Status == GL_FALSE)
+	{
+		glGetShaderInfoLog(FragmentShader, sizeof(ErrorLog), 0, ErrorLog);
+	}
+	GLuint ShaderProgram = glCreateProgram();
+	glAttachShader(ShaderProgram, VertexShader);
+	glAttachShader(ShaderProgram, FragmentShader);
+	glLinkProgram(ShaderProgram);
+	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Status);
+	if(Status == GL_FALSE)
+	{
+		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), 0, ErrorLog);
+	}
+	glDeleteShader(VertexShader);
+	glDeleteShader(FragmentShader);
+	glUseProgram(ShaderProgram);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
 	MSG Message = {0};
 	for(;;)
 	{
@@ -79,6 +145,7 @@ void WinMainCRTStartup()
 		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		SwapBuffers(WindowDC);
 	}
 }
