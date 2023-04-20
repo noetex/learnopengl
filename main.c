@@ -22,7 +22,7 @@ WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
 		{
 			break_if(glViewport == 0);
 			RECT WindowRect = {0};
-			GetWindowRect(Window, &WindowRect);
+			GetClientRect(Window, &WindowRect);
 			int WindowWidth = WindowRect.right - WindowRect.left;
 			int WindowHeight = WindowRect.bottom - WindowRect.top;
 			glViewport(0, 0, WindowWidth, WindowHeight);
@@ -89,15 +89,15 @@ void WinMainCRTStartup()
 	{
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
+		0.0f, 0.5f, 0.0f,
 	};
+	GLuint VertexArray;
+	glGenVertexArrays(1, &VertexArray);
+	glBindVertexArray(VertexArray);
 	GLuint VertexBuffer = 0;
 	glGenBuffers(1, &VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-	GLuint VertexArray;
-	glGenVertexArrays(1, &VertexArray);
-	glBindVertexArray(VertexArray);
 	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
 	glCompileShader(VertexShader);
@@ -128,7 +128,6 @@ void WinMainCRTStartup()
 	glDeleteShader(VertexShader);
 	glDeleteShader(FragmentShader);
 	glUseProgram(ShaderProgram);
-
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 	MSG Message = {0};
