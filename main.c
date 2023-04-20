@@ -79,8 +79,30 @@ char* FragmentShaderSource =
 	"}\n"
 };
 
+static void
+DisableDPIScaling(void)
+{
+	HMODULE Library = LoadLibraryW(L"user32.dll");
+	void* Function = GetProcAddress(Library, "SetProcessDpiAwarenessContext");
+	if(Function)
+	{
+		typedef BOOL new_function(DPI_AWARENESS_CONTEXT);
+		new_function* SetProcessDpiAwarenessContext = Function;
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+		return;
+	}
+	Function = GetProcAddress(Library, "SetProcessDpiAware");
+	if(Function)
+	{
+		typedef BOOL old_function(void);
+		old_function* SetProcessDpiAware = Function;
+		SetProcessDpiAware();
+	}
+}
+
 void WinMainCRTStartup()
 {
+	DisableDPIScaling();
 	HWND Window = CreateOpenGLWindow();
 	HDC WindowDC = GetDC(Window);
 	SetOpenGLContext(Window);
