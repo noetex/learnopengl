@@ -88,16 +88,26 @@ void WinMainCRTStartup()
 	float Vertices[] =
 	{
 		-0.5f, -0.5f, 0.0f,
+		-0.5f, 0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f,
+		0.5f, 0.5f, 0.0f,
 	};
-	GLuint VertexArray;
+	GLuint Indices[] =
+	{
+		0, 1, 2,
+		1, 2, 3,
+	};
+	GLuint VertexArray = 0;
 	glGenVertexArrays(1, &VertexArray);
 	glBindVertexArray(VertexArray);
 	GLuint VertexBuffer = 0;
 	glGenBuffers(1, &VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+	GLuint ElementBuffer = 0;
+	glGenBuffers(1, &ElementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
 	glCompileShader(VertexShader);
@@ -130,6 +140,7 @@ void WinMainCRTStartup()
 	glUseProgram(ShaderProgram);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	MSG Message = {0};
 	for(;;)
 	{
@@ -144,7 +155,7 @@ void WinMainCRTStartup()
 		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		SwapBuffers(WindowDC);
 	}
 }
