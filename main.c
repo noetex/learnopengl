@@ -100,6 +100,20 @@ DisableDPIScaling(void)
 	}
 }
 
+float Triangle1[] =
+{
+	-0.5f, -0.5f, 0.0f,
+	-0.25f, 0.5f, 0.0f,
+	0.0f, -0.5f, 0.0f,
+};
+
+float Triangle2[] =
+{
+	0.0f, -0.5f, 0.0f,
+	0.25f, 0.5f, 0.0f,
+	0.5f, -0.5f, 0.0f,
+};
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -107,22 +121,24 @@ void WinMainCRTStartup()
 	HDC WindowDC = GetDC(Window);
 	SetOpenGLContext(Window);
 	LoadOpenGLFunctions();
-	float Vertices[] =
-	{
-		-0.5f, -0.5f, 0.0f,
-		-0.25f, 0.5f, 0.0f,
-		0.0f, -0.5f, 0.0f,
-		0.0f, -0.5f, 0.0f,
-		0.25f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-	};
-	GLuint VertexArray = 0;
-	glGenVertexArrays(1, &VertexArray);
-	glBindVertexArray(VertexArray);
-	GLuint VertexBuffer = 0;
-	glGenBuffers(1, &VertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+	GLuint VertexArrays[2];
+	GLuint VertexBuffers[2];
+	glGenVertexArrays(2, VertexArrays);
+	glGenBuffers(2, VertexBuffers);
+
+	glBindVertexArray(VertexArrays[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle1), Triangle1, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(VertexArrays[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle1), Triangle2, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+
 	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
 	glCompileShader(VertexShader);
@@ -153,8 +169,7 @@ void WinMainCRTStartup()
 	glDeleteShader(VertexShader);
 	glDeleteShader(FragmentShader);
 	glUseProgram(ShaderProgram);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
+	
 	MSG Message = {0};
 	for(;;)
 	{
@@ -169,7 +184,11 @@ void WinMainCRTStartup()
 		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(VertexArrays[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VertexArrays[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		SwapBuffers(WindowDC);
 	}
 }
