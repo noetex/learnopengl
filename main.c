@@ -63,9 +63,11 @@ char* VertexShaderSource =
 {
 	"#version 330 core\n"
 	"layout(location = 0) in vec3 Position;\n"
+	"out vec4 Color;\n"
 	"void main()\n"
 	"{\n"
 	"\tgl_Position = vec4(Position.x, Position.y, Position.z, 1.0f);\n"
+	"\tColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);"
 	"}\n"
 };
 
@@ -73,9 +75,10 @@ char* FragmentShaderSource =
 {
 	"#version 330 core\n"
 	"out vec4 FragmentColor;\n"
+	"in vec4 Color;\n"
 	"void main()\n"
 	"{\n"
-	"\tFragmentColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+	"\tFragmentColor = Color;\n"
 	"}\n"
 };
 
@@ -110,17 +113,10 @@ DisableDPIScaling(void)
 	}
 }
 
-float Triangle1[] =
+float Triangle[] =
 {
 	-0.5f, -0.5f, 0.0f,
-	-0.25f, 0.5f, 0.0f,
-	0.0f, -0.5f, 0.0f,
-};
-
-float Triangle2[] =
-{
-	0.0f, -0.5f, 0.0f,
-	0.25f, 0.5f, 0.0f,
+	0.0f, 0.5f, 0.0f,
 	0.5f, -0.5f, 0.0f,
 };
 
@@ -132,20 +128,14 @@ void WinMainCRTStartup()
 	SetOpenGLContext(Window);
 	LoadOpenGLFunctions();
 
-	GLuint VertexArrays[2];
-	GLuint VertexBuffers[2];
-	glGenVertexArrays(2, VertexArrays);
-	glGenBuffers(2, VertexBuffers);
+	GLuint VertexArray;
+	GLuint VertexBuffer;
+	glGenVertexArrays(1, &VertexArray);
+	glGenBuffers(1, &VertexBuffer);
 
-	glBindVertexArray(VertexArrays[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle1), Triangle1, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(VertexArrays[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle1), Triangle2, GL_STATIC_DRAW);
+	glBindVertexArray(VertexArray);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle), Triangle, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
@@ -169,15 +159,6 @@ void WinMainCRTStartup()
 		glGetShaderInfoLog(FragmentShader, sizeof(ErrorLog), 0, ErrorLog);
 	}
 
-	GLuint FragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShader2, 1, &FragmentShaderSource2, 0);
-	glCompileShader(FragmentShader2);
-	glGetShaderiv(FragmentShader2, GL_COMPILE_STATUS, &Status);
-	if(Status == GL_FALSE)
-	{
-		glGetShaderInfoLog(FragmentShader2, sizeof(ErrorLog), 0, ErrorLog);
-	}
-
 	GLuint ShaderProgram = glCreateProgram();
 	glAttachShader(ShaderProgram, VertexShader);
 	glAttachShader(ShaderProgram, FragmentShader);
@@ -187,19 +168,9 @@ void WinMainCRTStartup()
 	{
 		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), 0, ErrorLog);
 	}
-	glDeleteShader(FragmentShader);
-
-	GLuint ShaderProgram2 = glCreateProgram();
-	glAttachShader(ShaderProgram2, VertexShader);
-	glAttachShader(ShaderProgram2, FragmentShader2);
-	glLinkProgram(ShaderProgram2);
-	glGetProgramiv(ShaderProgram2, GL_LINK_STATUS, &Status);
-	if(Status == GL_FALSE)
-	{
-		glGetProgramInfoLog(ShaderProgram2, sizeof(ErrorLog), 0, ErrorLog);
-	}
 	glDeleteShader(VertexShader);
-	glDeleteShader(FragmentShader2);
+	glDeleteShader(FragmentShader);
+	glUseProgram(ShaderProgram);
 	
 	MSG Message = {0};
 	for(;;)
@@ -215,11 +186,6 @@ void WinMainCRTStartup()
 		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(ShaderProgram);
-		glBindVertexArray(VertexArrays[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glUseProgram(ShaderProgram2);
-		glBindVertexArray(VertexArrays[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		SwapBuffers(WindowDC);
 	}
