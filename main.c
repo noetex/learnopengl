@@ -85,16 +85,6 @@ char* FragmentShaderSource =
 	"}\n"
 };
 
-char* FragmentShaderSource2 =
-{
-	"#version 330 core\n"
-	"out vec4 FragmentColor;\n"
-	"void main()\n"
-	"{\n"
-	"\tFragmentColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
-	"}\n"	
-};
-
 static void
 DisableDPIScaling(void)
 {
