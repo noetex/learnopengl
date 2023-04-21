@@ -65,9 +65,12 @@ char* VertexShaderSource =
 {
 	"#version 330 core\n"
 	"layout(location = 0) in vec3 Position;\n"
+	"layout(location = 1) in vec3 Color;\n"
+	"out vec3 PixelColor;\n"
 	"void main()\n"
 	"{\n"
 	"\tgl_Position = vec4(Position.x, Position.y, Position.z, 1.0f);\n"
+	"PixelColor = Color;\n"
 	"}\n"
 };
 
@@ -75,10 +78,10 @@ char* FragmentShaderSource =
 {
 	"#version 330 core\n"
 	"out vec4 FragmentColor;\n"
-	"uniform vec4 Color;\n"
+	"in vec3 PixelColor;\n"
 	"void main()\n"
 	"{\n"
-	"\tFragmentColor = Color;\n"
+	"\tFragmentColor = vec4(PixelColor, 1.0f);\n"
 	"}\n"
 };
 
@@ -115,9 +118,9 @@ DisableDPIScaling(void)
 
 float Triangle[] =
 {
-	-0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.5f,	0.0f, 0.0f, 1.0f, 0.0f,
+	0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
 };
 
 void WinMainCRTStartup()
@@ -136,8 +139,10 @@ void WinMainCRTStartup()
 	glBindVertexArray(VertexArray);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle), Triangle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 
 	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
