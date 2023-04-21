@@ -1,5 +1,6 @@
 #include<windows.h>
 #include<stdint.h>
+#include<math.h>
 
 #include"main.h"
 #include"khrplatform.h"
@@ -11,6 +12,7 @@
 #pragma comment(lib, "user32")
 #pragma comment(lib, "gdi32")
 #pragma comment(lib, "opengl32")
+#pragma comment(lib, "libucrt")
 
 static LRESULT CALLBACK
 WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -63,11 +65,9 @@ char* VertexShaderSource =
 {
 	"#version 330 core\n"
 	"layout(location = 0) in vec3 Position;\n"
-	"out vec4 Color;\n"
 	"void main()\n"
 	"{\n"
 	"\tgl_Position = vec4(Position.x, Position.y, Position.z, 1.0f);\n"
-	"\tColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);"
 	"}\n"
 };
 
@@ -75,7 +75,7 @@ char* FragmentShaderSource =
 {
 	"#version 330 core\n"
 	"out vec4 FragmentColor;\n"
-	"in vec4 Color;\n"
+	"uniform vec4 Color;\n"
 	"void main()\n"
 	"{\n"
 	"\tFragmentColor = Color;\n"
@@ -171,19 +171,26 @@ void WinMainCRTStartup()
 	glDeleteShader(VertexShader);
 	glDeleteShader(FragmentShader);
 	glUseProgram(ShaderProgram);
-	
+	int VarLocation = glGetUniformLocation(ShaderProgram, "Color");
+	LARGE_INTEGER Frequency;
+	LARGE_INTEGER Counter;
+	QueryPerformanceFrequency(&Frequency);
 	MSG Message = {0};
 	for(;;)
 	{
-		GetMessageW(&Message, 0, 0, 0);
-		do
+		//GetMessageW(&Message, 0, 0, 0);
+		while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE))
 		{
 			if(Message.message == WM_QUIT)
 			{
 				ExitProcess(0);
 			}
 			DispatchMessageW(&Message);
-		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
+		}
+		QueryPerformanceCounter(&Counter);
+		float Time = Counter.QuadPart/1000000.0f;
+		float GreenValue = fabsf(sinf(Time/8.0f));
+		glUniform4f(VarLocation, 0.0f, GreenValue, 0.0f, 1.0f);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
