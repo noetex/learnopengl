@@ -79,6 +79,16 @@ char* FragmentShaderSource =
 	"}\n"
 };
 
+char* FragmentShaderSource2 =
+{
+	"#version 330 core\n"
+	"out vec4 FragmentColor;\n"
+	"void main()\n"
+	"{\n"
+	"\tFragmentColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+	"}\n"	
+};
+
 static void
 DisableDPIScaling(void)
 {
@@ -149,6 +159,7 @@ void WinMainCRTStartup()
 	{
 		glGetShaderInfoLog(VertexShader, sizeof(ErrorLog), 0, ErrorLog);
 	}
+
 	GLuint FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(FragmentShader, 1, &FragmentShaderSource, 0);
 	glCompileShader(FragmentShader);
@@ -157,6 +168,16 @@ void WinMainCRTStartup()
 	{
 		glGetShaderInfoLog(FragmentShader, sizeof(ErrorLog), 0, ErrorLog);
 	}
+
+	GLuint FragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(FragmentShader2, 1, &FragmentShaderSource2, 0);
+	glCompileShader(FragmentShader2);
+	glGetShaderiv(FragmentShader2, GL_COMPILE_STATUS, &Status);
+	if(Status == GL_FALSE)
+	{
+		glGetShaderInfoLog(FragmentShader2, sizeof(ErrorLog), 0, ErrorLog);
+	}
+
 	GLuint ShaderProgram = glCreateProgram();
 	glAttachShader(ShaderProgram, VertexShader);
 	glAttachShader(ShaderProgram, FragmentShader);
@@ -166,9 +187,19 @@ void WinMainCRTStartup()
 	{
 		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), 0, ErrorLog);
 	}
-	glDeleteShader(VertexShader);
 	glDeleteShader(FragmentShader);
-	glUseProgram(ShaderProgram);
+
+	GLuint ShaderProgram2 = glCreateProgram();
+	glAttachShader(ShaderProgram2, VertexShader);
+	glAttachShader(ShaderProgram2, FragmentShader2);
+	glLinkProgram(ShaderProgram2);
+	glGetProgramiv(ShaderProgram2, GL_LINK_STATUS, &Status);
+	if(Status == GL_FALSE)
+	{
+		glGetProgramInfoLog(ShaderProgram2, sizeof(ErrorLog), 0, ErrorLog);
+	}
+	glDeleteShader(VertexShader);
+	glDeleteShader(FragmentShader2);
 	
 	MSG Message = {0};
 	for(;;)
@@ -184,9 +215,10 @@ void WinMainCRTStartup()
 		} while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE));
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		glUseProgram(ShaderProgram);
 		glBindVertexArray(VertexArrays[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(ShaderProgram2);
 		glBindVertexArray(VertexArrays[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		SwapBuffers(WindowDC);
