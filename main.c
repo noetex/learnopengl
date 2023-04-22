@@ -7,6 +7,7 @@
 #include"opengl.h"
 
 #include"opengl.c"
+#include"shader.c"
 
 #pragma comment(lib, "kernel32")
 #pragma comment(lib, "user32")
@@ -61,30 +62,6 @@ CreateOpenGLWindow(void)
 	return Result;
 }
 
-char* VertexShaderSource =
-{
-	"#version 330 core\n"
-	"layout(location = 0) in vec3 Position;\n"
-	"layout(location = 1) in vec3 Color;\n"
-	"out vec3 PixelColor;\n"
-	"void main()\n"
-	"{\n"
-	"\tgl_Position = vec4(Position.x, Position.y, Position.z, 1.0f);\n"
-	"PixelColor = Color;\n"
-	"}\n"
-};
-
-char* FragmentShaderSource =
-{
-	"#version 330 core\n"
-	"out vec4 FragmentColor;\n"
-	"in vec3 PixelColor;\n"
-	"void main()\n"
-	"{\n"
-	"\tFragmentColor = vec4(PixelColor, 1.0f);\n"
-	"}\n"
-};
-
 static void
 DisableDPIScaling(void)
 {
@@ -134,37 +111,9 @@ void WinMainCRTStartup()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(VertexShader, 1, &VertexShaderSource, 0);
-	glCompileShader(VertexShader);
-	GLint Status = 0;
-	glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &Status);
-	char ErrorLog[512];
-	if(Status == GL_FALSE)
-	{
-		glGetShaderInfoLog(VertexShader, sizeof(ErrorLog), 0, ErrorLog);
-	}
-
-	GLuint FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShader, 1, &FragmentShaderSource, 0);
-	glCompileShader(FragmentShader);
-	glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &Status);
-	if (Status == GL_FALSE)
-	{
-		glGetShaderInfoLog(FragmentShader, sizeof(ErrorLog), 0, ErrorLog);
-	}
-
-	GLuint ShaderProgram = glCreateProgram();
-	glAttachShader(ShaderProgram, VertexShader);
-	glAttachShader(ShaderProgram, FragmentShader);
-	glLinkProgram(ShaderProgram);
-	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Status);
-	if(Status == GL_FALSE)
-	{
-		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), 0, ErrorLog);
-	}
-	glDeleteShader(VertexShader);
-	glDeleteShader(FragmentShader);
+	GLuint VertexShader = CreateOpenGLShader("../shader.vert", GL_VERTEX_SHADER);
+	GLuint FragmentShader = CreateOpenGLShader("../shader.frag", GL_FRAGMENT_SHADER);
+	GLuint ShaderProgram = CreateOpenGLProgram(VertexShader, FragmentShader);
 	glUseProgram(ShaderProgram);
 	int VarLocation = glGetUniformLocation(ShaderProgram, "Color");
 	LARGE_INTEGER Frequency;
