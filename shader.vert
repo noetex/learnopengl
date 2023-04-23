@@ -6,6 +6,6 @@ out vec3 PixelColor;
 
 void main()
 {
-	gl_Position = vec4(Position, 1.0f);
+	gl_Position = vec4(-Position, 1.0f);
 	PixelColor = Color;
 }
