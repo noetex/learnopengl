@@ -148,6 +148,7 @@ void WinMainCRTStartup()
 
 	GLuint Texture = 0;
 	glGenTextures(1, &Texture);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
