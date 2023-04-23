@@ -3,7 +3,11 @@
 in vec3 PixelColor;
 out vec4 FragmentColor;
 
+in vec2 TexCoords;
+
+uniform sampler2D Texture;
+
 void main()
 {
-	FragmentColor = vec4(PixelColor, 1.0f);
+	FragmentColor = texture(Texture, TexCoords);
 }
