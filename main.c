@@ -144,7 +144,6 @@ void WinMainCRTStartup()
 	GLuint FragmentShader = CreateOpenGLShader("../shader.frag", GL_FRAGMENT_SHADER);
 	GLuint ShaderProgram = CreateOpenGLProgram(VertexShader, FragmentShader);
 	glUseProgram(ShaderProgram);
-	int OffsetLocation = glGetUniformLocation(ShaderProgram, "Offset");
 
 	GLuint Texture = 0;
 	glGenTextures(1, &Texture);
