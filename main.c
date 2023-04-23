@@ -119,6 +119,9 @@ void WinMainCRTStartup()
 	LARGE_INTEGER Frequency;
 	LARGE_INTEGER Counter;
 	QueryPerformanceFrequency(&Frequency);
+	float HorizontalOffset = 0.5f;
+	int OffsetLocation = glGetUniformLocation(ShaderProgram, "Offset");
+	glUniform1f(OffsetLocation, HorizontalOffset);
 	MSG Message = {0};
 	for(;;)
 	{
