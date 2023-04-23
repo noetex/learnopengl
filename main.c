@@ -115,17 +115,10 @@ void WinMainCRTStartup()
 	GLuint FragmentShader = CreateOpenGLShader("../shader.frag", GL_FRAGMENT_SHADER);
 	GLuint ShaderProgram = CreateOpenGLProgram(VertexShader, FragmentShader);
 	glUseProgram(ShaderProgram);
-	int VarLocation = glGetUniformLocation(ShaderProgram, "Color");
-	LARGE_INTEGER Frequency;
-	LARGE_INTEGER Counter;
-	QueryPerformanceFrequency(&Frequency);
-	float HorizontalOffset = 0.5f;
 	int OffsetLocation = glGetUniformLocation(ShaderProgram, "Offset");
-	glUniform1f(OffsetLocation, HorizontalOffset);
 	MSG Message = {0};
 	for(;;)
 	{
-		//GetMessageW(&Message, 0, 0, 0);
 		while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE))
 		{
 			if(Message.message == WM_QUIT)
@@ -134,10 +127,6 @@ void WinMainCRTStartup()
 			}
 			DispatchMessageW(&Message);
 		}
-		QueryPerformanceCounter(&Counter);
-		float Time = Counter.QuadPart/1000000.0f;
-		float GreenValue = fabsf(sinf(Time/8.0f));
-		glUniform4f(VarLocation, 0.0f, GreenValue, 0.0f, 1.0f);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
