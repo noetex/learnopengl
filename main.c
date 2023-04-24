@@ -165,10 +165,10 @@ GetFileContents(char* FileName, DWORD* FileSize)
 
 float Triangle[] =
 {
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f,
-	0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 0.0f,
-	0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 2.0f, 2.0f,
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.45f, 0.45f,
+	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.45f, 0.55f,
+	0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.55f, 0.45f,
+	0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.55f, 0.55f,
 };
 
 GLuint Indices[] =
@@ -213,10 +213,10 @@ void WinMainCRTStartup()
 	glGenTextures(2, Textures);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Textures[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	DWORD FileSize = 0;
 	int Width;
@@ -235,8 +235,8 @@ void WinMainCRTStartup()
 	glBindTexture(GL_TEXTURE_2D, Textures[1]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	Contents = GetFileContents("../awesomeface.png", &FileSize);
 	Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
