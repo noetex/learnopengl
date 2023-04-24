@@ -10,8 +10,7 @@ uniform sampler2D Texture2;
 
 void main()
 {
-	vec2 InvertedTexCoords = vec2(1 - TexCoords.x, TexCoords.y);
 	vec4 Color1 = texture(Texture1, TexCoords);
-	vec4 Color2 = texture(Texture2, InvertedTexCoords);
+	vec4 Color2 = texture(Texture2, TexCoords);
 	FragmentColor = mix(Color1, Color2, 0.2);
 }
