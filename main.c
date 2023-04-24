@@ -92,6 +92,19 @@ WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
 			glViewport(0, 0, WindowWidth, WindowHeight);
 		} break;
 
+		case WM_KEYDOWN:
+		{
+			float* MixParameter = (float*)GetWindowLongPtrW(Window, GWLP_USERDATA);
+			if(wParam == VK_UP)
+			{
+				*MixParameter += 0.05f;
+			}
+			else if(wParam == VK_DOWN)
+			{
+				*MixParameter -= 0.05f;
+			}
+		} break;
+
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
@@ -165,10 +178,10 @@ GetFileContents(char* FileName, DWORD* FileSize)
 
 float Triangle[] =
 {
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.45f, 0.45f,
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.45f, 0.55f,
-	0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.55f, 0.45f,
-	0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.55f, 0.55f,
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+	0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
 };
 
 GLuint Indices[] =
@@ -248,6 +261,8 @@ void WinMainCRTStartup()
 
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
+	float MixParameter = 0.2f;
+	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
 
 	MSG Message = {0};
 	for(;;)
@@ -260,6 +275,7 @@ void WinMainCRTStartup()
 			}
 			DispatchMessageW(&Message);
 		}
+		glUniform1f(glGetUniformLocation(ShaderProgram, "MixParameter"), MixParameter);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
