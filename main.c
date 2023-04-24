@@ -2,9 +2,6 @@
 #include<stdint.h>
 #include<math.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-//#define STBI_NO_STDIO
-#include"stb_image.h"
 #include"main.h"
 #include"khrplatform.h"
 #include"opengl.h"
@@ -18,18 +15,66 @@
 #pragma comment(lib, "opengl32")
 #pragma comment(lib, "libucrt")
 
+#pragma function(memcpy)
 static void*
-malloc(size_t Size)
+memcpy(void* Dest, void* Src, size_t NumBytes)
+{
+	while(NumBytes > 0)
+	{
+		*(char*)Dest = *(char*)Src;
+		(char*)Dest += 1;
+		(char*)Src += 1;
+		NumBytes -= 1;
+	}
+	return Dest;
+}
+
+static void*
+Malloc(size_t Size)
 {
 	void* Result = VirtualAlloc(0, Size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	Assert(Result);
 	return Result;
 }
 
 static void
-free(void* Memory)
+Free(void* Memory)
 {
 	VirtualFree(Memory, 0, MEM_RELEASE);
 }
+
+static void*
+Realloc(void* Memory, size_t OldSize, size_t NewSize)
+{
+	if(NewSize == 0)
+	{
+		Free(Memory);
+		return 0;
+	}
+	if(Memory == 0)
+	{
+		Memory = Malloc(NewSize);
+		return Memory;
+	}
+	if(NewSize <= OldSize)
+	{
+		return Memory;
+	}
+	void* Result = Malloc(NewSize);
+	if(Result)
+	{
+		memcpy(Result, Memory, OldSize);
+		Free(Memory);
+	}
+	return Result;
+}
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_MALLOC(Size) Malloc(Size)
+#define STBI_FREE(Memory) Free(Memory)
+#define STBI_REALLOC_SIZED(Memory, OldSize, NewSize) Realloc(Memory, OldSize, NewSize)
+//#define STBI_NO_STDIO
+#include"stb_image.h"
 
 static LRESULT CALLBACK
 WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -99,6 +144,25 @@ DisableDPIScaling(void)
 	}
 }
 
+static char*
+GetFileContents(char* FileName, DWORD* FileSize)
+{
+	HANDLE File = CreateFileA(FileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	Assert(File != INVALID_HANDLE_VALUE);
+	*FileSize = GetFileSize(File, 0);
+	char* Result = VirtualAlloc(0, *FileSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	Assert(Result);
+	DWORD BytesRead = 0;
+	ReadFile(File, Result, *FileSize, &BytesRead, 0);
+	if(BytesRead != *FileSize)
+	{
+		VirtualFree(Result, 0, MEM_RELEASE);
+		Result = 0;
+	}
+	CloseHandle(File);
+	return Result;
+}
+
 float Triangle[] =
 {
 	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -145,32 +209,45 @@ void WinMainCRTStartup()
 	GLuint ShaderProgram = CreateOpenGLProgram(VertexShader, FragmentShader);
 	glUseProgram(ShaderProgram);
 
-	GLuint Texture = 0;
-	glGenTextures(1, &Texture);
+	GLuint Textures[2];
+	glGenTextures(2, Textures);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-
+	glBindTexture(GL_TEXTURE_2D, Textures[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	HANDLE File = CreateFileA("../container.jpg", GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	Assert(File != INVALID_HANDLE_VALUE);
-	DWORD FileSize = GetFileSize(File, 0);
-	char* Contents = VirtualAlloc(0, FileSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	DWORD BytesRead = 0;
-	ReadFile(File, Contents, FileSize, &BytesRead, 0);
-	Assert(BytesRead == FileSize);
-
+	DWORD FileSize = 0;
 	int Width;
 	int Height;
 	int NumChannels;
+	char* Contents = GetFileContents("../container.jpg", &FileSize);
+	stbi_set_flip_vertically_on_load(1);
 	unsigned char* Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
 	Assert(Data);
+	VirtualFree(Contents, 0, MEM_RELEASE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(Data);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, Textures[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	Contents = GetFileContents("../awesomeface.png", &FileSize);
+	Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
+	Assert(Data);
+	VirtualFree(Contents, 0, MEM_RELEASE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(Data);
+
+	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
+	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 
 	MSG Message = {0};
 	for(;;)
