@@ -1,5 +1,7 @@
 #include<windows.h>
 #include<stdint.h>
+
+#define _USE_MATH_DEFINES
 #include<math.h>
 
 #include"main.h"
@@ -8,6 +10,7 @@
 
 #include"opengl.c"
 #include"shader.c"
+#include"vmath.c"
 
 #pragma comment(lib, "kernel32")
 #pragma comment(lib, "user32")
@@ -264,6 +267,8 @@ void WinMainCRTStartup()
 	float MixParameter = 0.2f;
 	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
 
+	matrix4 Transform = Matrix4_RotateZ((float)M_PI/2.0f);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
 	MSG Message = {0};
 	for(;;)
 	{
