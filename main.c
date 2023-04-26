@@ -266,8 +266,9 @@ void WinMainCRTStartup()
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 	float MixParameter = 0.2f;
 	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
-
-	matrix4 Transform = Matrix4_RotateZ((float)M_PI/2.0f);
+	matrix4 Rotation = Matrix4_RotateZ((float)M_PI/2.0f);
+	matrix4 Scale = Matrix4_Scale((vector3){0.5f, 0.5f, 0.5f});
+	matrix4 Transform = Matrix4_MultiplyMatrix4(Rotation, Scale);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
 	MSG Message = {0};
 	for(;;)
