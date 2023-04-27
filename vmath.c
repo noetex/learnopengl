@@ -95,3 +95,16 @@ Matrix4_RotateZ(float Angle)
 	};
 	return Result;
 }
+
+static matrix4
+Matrix4_Translate(vector3 Translation)
+{
+	matrix4 Result =
+	{
+		1, 0, 0, Translation.X,
+		0, 1, 0, Translation.Y,
+		0, 0, 1, Translation.Z,
+		0, 0, 0, 1, 
+	};
+	return Result;
+}

@@ -262,14 +262,14 @@ void WinMainCRTStartup()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(Data);
 
+	LARGE_INTEGER Frequency;
+	LARGE_INTEGER Counter;
+	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 	float MixParameter = 0.2f;
 	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
-	matrix4 Rotation = Matrix4_RotateZ((float)M_PI/2.0f);
-	matrix4 Scale = Matrix4_Scale((vector3){0.5f, 0.5f, 0.5f});
-	matrix4 Transform = Matrix4_MultiplyMatrix4(Rotation, Scale);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
+	matrix4 Translation = Matrix4_Translate((vector3){0.5f, -0.5f, 0.0f});
 	MSG Message = {0};
 	for(;;)
 	{
@@ -282,6 +282,11 @@ void WinMainCRTStartup()
 			DispatchMessageW(&Message);
 		}
 		glUniform1f(glGetUniformLocation(ShaderProgram, "MixParameter"), MixParameter);
+		QueryPerformanceCounter(&Counter);
+		float Angle = (float)Counter.QuadPart/10000000.0f;
+		matrix4 Rotation = Matrix4_RotateZ(Angle);
+		matrix4 Transform = Matrix4_MultiplyMatrix4(Rotation, Translation);
+		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
