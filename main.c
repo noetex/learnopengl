@@ -267,8 +267,6 @@ void WinMainCRTStartup()
 	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
-	float MixParameter = 0.2f;
-	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
 	matrix4 Translation = Matrix4_Translate((vector3){0.5f, -0.5f, 0.0f});
 	matrix4 Translation2 = Matrix4_Translate((vector3){-0.5f, 0.5f, 0.0f});
 	MSG Message = {0};
@@ -284,7 +282,6 @@ void WinMainCRTStartup()
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUniform1f(glGetUniformLocation(ShaderProgram, "MixParameter"), MixParameter);
 		QueryPerformanceCounter(&Counter);
 		float Angle = (float)Counter.QuadPart/10000000.0f;
 		matrix4 Rotation = Matrix4_RotateZ(Angle);
