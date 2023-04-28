@@ -285,7 +285,7 @@ void WinMainCRTStartup()
 		QueryPerformanceCounter(&Counter);
 		float Angle = (float)Counter.QuadPart/10000000.0f;
 		matrix4 Rotation = Matrix4_RotateZ(Angle);
-		matrix4 Transform = Matrix4_MultiplyMatrix4(Rotation, Translation);
+		matrix4 Transform = Matrix4_MultiplyMatrix4(Translation, Rotation);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

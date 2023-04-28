@@ -58,7 +58,7 @@ Matrix4_MultiplyVector4(matrix4 Matrix, vector4 Vector)
 }
 
 static matrix4
-Matrix4_MultiplyMatrix4(matrix4 M1, matrix4 M2)
+Matrix4_MultiplyMatrix4(matrix4 M2, matrix4 M1)
 {
 	matrix4 Result;
 	Result.AxisX = Matrix4_MultiplyVector4(M1, M2.AxisX);
