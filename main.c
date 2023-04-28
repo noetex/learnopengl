@@ -270,6 +270,7 @@ void WinMainCRTStartup()
 	float MixParameter = 0.2f;
 	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&MixParameter);
 	matrix4 Translation = Matrix4_Translate((vector3){0.5f, -0.5f, 0.0f});
+	matrix4 Translation2 = Matrix4_Translate((vector3){-0.5f, 0.5f, 0.0f});
 	MSG Message = {0};
 	for(;;)
 	{
@@ -287,8 +288,14 @@ void WinMainCRTStartup()
 		QueryPerformanceCounter(&Counter);
 		float Angle = (float)Counter.QuadPart/10000000.0f;
 		matrix4 Rotation = Matrix4_RotateZ(Angle);
-		matrix4 Transform = Matrix4_MultiplyMatrix4(Rotation, Translation);
-		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Transform"), 1, GL_TRUE, Transform.Elements);
+		matrix4 Transform = Matrix4_MultiplyMatrix4(Translation, Rotation);
+		int MatrixLocation = glGetUniformLocation(ShaderProgram, "Transform");
+		glUniformMatrix4fv(MatrixLocation, 1, GL_TRUE, Transform.Elements);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		float Factor = sinf(Angle);
+		matrix4 Scale = Matrix4_Scale((vector3){Factor, Factor, 0});
+		matrix4 Transform2 = Matrix4_MultiplyMatrix4(Translation2, Scale);
+		glUniformMatrix4fv(MatrixLocation, 1, GL_TRUE, Transform2.Elements);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		SwapBuffers(WindowDC);
 	}
