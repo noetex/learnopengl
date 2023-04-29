@@ -82,6 +82,36 @@ Matrix4_Scale(vector3 Factor)
 }
 
 static matrix4
+Matrix4_RotateX(float Angle)
+{
+	float C = cosf(Angle);
+	float S = sinf(Angle);
+	matrix4 Result =
+	{
+		1, 0, 0, 0,
+		0, C, -S, 0,
+		0, S, C, 0,
+		0, 0, 0, 1,
+	};
+	return Result;
+}
+
+static matrix4
+Matrix4_RotateY(float Angle)
+{
+	float C = cosf(Angle);
+	float S = sinf(Angle);
+	matrix4 Result =
+	{
+		C, 0, S, 0,
+		0, 1, 0, 0,
+		-S, 0, C, 0,
+		0, 0, 0, 1,
+	};
+	return Result;
+}
+
+static matrix4
 Matrix4_RotateZ(float Angle)
 {
 	float C = cosf(Angle);
@@ -105,6 +135,21 @@ Matrix4_Translate(vector3 Translation)
 		0, 1, 0, Translation.Y,
 		0, 0, 1, Translation.Z,
 		0, 0, 0, 1, 
+	};
+	return Result;
+}
+
+static matrix4
+Matrix4_Perspective(float FieldOfView, float AspectRatio, float Near, float Far)
+{
+	float F = 1/tanf(FieldOfView/2);
+	float Q = Far-Near;
+	matrix4 Result =
+	{
+		AspectRatio * F, 0, 0, 0,
+		0, F, 0, 0,
+		0, 0, -(Far+Near)/Q, -(2*Far*Near)/Q,
+		0, 0, -1, 0,
 	};
 	return Result;
 }

@@ -12,6 +12,8 @@
 #include"shader.c"
 #include"vmath.c"
 
+#define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)
+
 #pragma comment(lib, "kernel32")
 #pragma comment(lib, "user32")
 #pragma comment(lib, "gdi32")
@@ -267,8 +269,17 @@ void WinMainCRTStartup()
 	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
+	RECT WindowRect;
+	GetClientRect(Window, &WindowRect);
+	int WindowWidth = WindowRect.right - WindowRect.left;
+	int WindowHeight = WindowRect.bottom - WindowRect.top;
+	matrix4 Model = Matrix4_RotateX(to_radians(-55.0f));
+	matrix4 View = Matrix4_Translate((vector3){0, 0, -3});
+	matrix4 Perspective = Matrix4_Perspective(to_radians(90.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_TRUE, Model.Elements);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_TRUE, View.Elements);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_TRUE, Perspective.Elements);
 	matrix4 Translation = Matrix4_Translate((vector3){0.5f, -0.5f, 0.0f});
-	matrix4 Translation2 = Matrix4_Translate((vector3){-0.5f, 0.5f, 0.0f});
 	MSG Message = {0};
 	for(;;)
 	{
@@ -288,11 +299,8 @@ void WinMainCRTStartup()
 		matrix4 Transform = Matrix4_MultiplyMatrix4(Translation, Rotation);
 		int MatrixLocation = glGetUniformLocation(ShaderProgram, "Transform");
 		glUniformMatrix4fv(MatrixLocation, 1, GL_TRUE, Transform.Elements);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		float Factor = sinf(Angle);
-		matrix4 Scale = Matrix4_Scale((vector3){Factor, Factor, 0});
-		matrix4 Transform2 = Matrix4_MultiplyMatrix4(Translation2, Scale);
-		glUniformMatrix4fv(MatrixLocation, 1, GL_TRUE, Transform2.Elements);
+		//matrix4 Model = Matrix4_RotateY(Angle);
+		//glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_TRUE, Model.Elements);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		SwapBuffers(WindowDC);
 	}
