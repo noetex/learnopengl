@@ -97,19 +97,6 @@ WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
 			glViewport(0, 0, WindowWidth, WindowHeight);
 		} break;
 
-		case WM_KEYDOWN:
-		{
-			float* MixParameter = (float*)GetWindowLongPtrW(Window, GWLP_USERDATA);
-			if(wParam == VK_UP)
-			{
-				*MixParameter += 0.05f;
-			}
-			else if(wParam == VK_DOWN)
-			{
-				*MixParameter -= 0.05f;
-			}
-		} break;
-
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
@@ -264,9 +251,6 @@ void WinMainCRTStartup()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(Data);
 
-	LARGE_INTEGER Frequency;
-	LARGE_INTEGER Counter;
-	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 	RECT WindowRect;
@@ -279,7 +263,6 @@ void WinMainCRTStartup()
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_TRUE, Model.Elements);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_TRUE, View.Elements);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_TRUE, Perspective.Elements);
-	matrix4 Translation = Matrix4_Translate((vector3){0.5f, -0.5f, 0.0f});
 	MSG Message = {0};
 	for(;;)
 	{
@@ -293,14 +276,6 @@ void WinMainCRTStartup()
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		QueryPerformanceCounter(&Counter);
-		float Angle = (float)Counter.QuadPart/10000000.0f;
-		matrix4 Rotation = Matrix4_RotateZ(Angle);
-		matrix4 Transform = Matrix4_MultiplyMatrix4(Translation, Rotation);
-		int MatrixLocation = glGetUniformLocation(ShaderProgram, "Transform");
-		glUniformMatrix4fv(MatrixLocation, 1, GL_TRUE, Transform.Elements);
-		//matrix4 Model = Matrix4_RotateY(Angle);
-		//glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_TRUE, Model.Elements);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		SwapBuffers(WindowDC);
 	}
