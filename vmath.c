@@ -157,11 +157,11 @@ static matrix4
 Matrix4_Perspective(float FieldOfView, float AspectRatio, float Near, float Far)
 {
 	float F = 1/tanf(FieldOfView/2);
-	float Q = 1/(Far-Near);
+	float Q = 1/(Near - Far);
 	matrix4 Result;
 	Result.AxisX = (vector4){AspectRatio*F, 0, 0, 0};
 	Result.AxisY = (vector4){0, F, 0, 0};
-	Result.AxisZ = (vector4){0, 0, -Q*(Far+Near), -1};
-	Result.AxisW = (vector4){0, 0, -Q*(2*Far*Near), 0};
+	Result.AxisZ = (vector4){0, 0, Q*(Far+Near), -1};
+	Result.AxisW = (vector4){0, 0, Q*(2*Far*Near), 0};
 	return Result;
 }
