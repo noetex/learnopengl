@@ -260,9 +260,9 @@ void WinMainCRTStartup()
 	matrix4 Model = Matrix4_RotateX(to_radians(-55.0f));
 	matrix4 View = Matrix4_Translate((vector3){0, 0, -3});
 	matrix4 Perspective = Matrix4_Perspective(to_radians(90.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_TRUE, Model.Elements);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_TRUE, View.Elements);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_TRUE, Perspective.Elements);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&View);
+	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	MSG Message = {0};
 	for(;;)
 	{
