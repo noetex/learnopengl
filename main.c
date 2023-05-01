@@ -302,7 +302,7 @@ void WinMainCRTStartup()
 	int WindowWidth = WindowRect.right - WindowRect.left;
 	int WindowHeight = WindowRect.bottom - WindowRect.top;
 	matrix4 View = Matrix4_Translate((vector3){0, 0, -3});
-	matrix4 Perspective = Matrix4_Perspective(to_radians(90.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
+	matrix4 Perspective = Matrix4_Perspective(to_radians(45.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&View);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	glEnable(GL_DEPTH_TEST);
