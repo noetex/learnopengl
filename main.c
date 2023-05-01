@@ -123,7 +123,11 @@ CreateOpenGLWindow(void)
 	WindowClass.lpszClassName = L"wndclass_name";
 	RegisterClassExW(&WindowClass);
 	DWORD WindowStyle = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-	HWND Result = CreateWindowExW(0, WindowClass.lpszClassName, L"LearnOpenGL", WindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, 0, 0, Instance, 0);
+	RECT WindowRect = {0, 0, 800, 600};
+	AdjustWindowRect(&WindowRect, WindowStyle, 0);
+	int Width = WindowRect.right - WindowRect.left;
+	int Height = WindowRect.bottom - WindowRect.top;
+	HWND Result = CreateWindowExW(0, WindowClass.lpszClassName, L"LearnOpenGL", WindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, Instance, 0);
 	Assert(IsWindow(Result));
 	return Result;
 }
