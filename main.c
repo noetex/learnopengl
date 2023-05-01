@@ -168,7 +168,7 @@ GetFileContents(char* FileName, DWORD* FileSize)
 	return Result;
 }
 
-float Triangle[] =
+float Rect[] =
 {
 	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
 	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
@@ -199,7 +199,7 @@ void WinMainCRTStartup()
 
 	glBindVertexArray(VertexArray);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle), Triangle, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Rect), Rect, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
