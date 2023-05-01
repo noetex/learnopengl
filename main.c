@@ -219,6 +219,20 @@ float Cube[] =
 	0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
 };
 
+vector3 CubePositions[] =
+{
+	{0.0f, 0.0f, 0.0f},
+	{2.0f, 5.0f, -15.0f},
+	{-1.5f, -2.2f, -2.5f},
+	{-3.8f, -2.0f, -12.3f},
+	{2.4f, -0.4f, -3.5f},
+	{-1.7f, 3.0f, -7.5f},
+	{1.3f, -2.0f, -2.5f},
+	{1.5f, 2.0f, -2.5f},
+	{1.5f, 0.2f, -1.5f},
+	{-1.3f, 1.0f, -1.5f},
+};
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -281,9 +295,6 @@ void WinMainCRTStartup()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(Data);
-	LARGE_INTEGER Frequency;
-	LARGE_INTEGER Counter;
-	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 	RECT WindowRect;
@@ -307,14 +318,17 @@ void WinMainCRTStartup()
 			}
 			DispatchMessageW(&Message);
 		}
-		QueryPerformanceCounter(&Counter);
-		float Angle = Counter.QuadPart/10000000.0f;
-		vector3 RotationAxis = {0.5f, 1.0f, 0.0f};
-		matrix4 Model = Matrix4_RotateAround(RotationAxis, Angle);
-		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for(int Index = 0; Index < 10; Index += 1)
+		{
+			float Angle = 20.0f * Index;
+			matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, to_radians(Angle));
+			matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
+			Model = Matrix4_MultiplyMatrix4(Translation, Model);
+			glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		SwapBuffers(WindowDC);
 	}
 }
