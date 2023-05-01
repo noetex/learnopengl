@@ -21,6 +21,35 @@ typedef struct
 	vector4 AxisW;
 } matrix4;
 
+static vector3
+Vector3_Scale(vector3 V, float Scale)
+{
+	vector3 Result;
+	Result.X = V.X * Scale;
+	Result.Y = V.Y * Scale;
+	Result.Z = V.Z * Scale;
+	return Result;
+}
+
+static float
+Vector3_Length(vector3 V)
+{
+	float Result = sqrtf(V.X*V.X + V.Y*V.Y + V.Z*V.Z);
+	return Result;
+}
+
+static vector3
+Vector3_Unit(vector3 V)
+{
+	float Length = Vector3_Length(V);
+	vector3 Result = V;
+	if(Length != 0)
+	{
+		Result = Vector3_Scale(V, 1/Length);
+	}
+	return Result;
+}
+
 static vector4
 Vector4_UnitX(void)
 {
@@ -138,6 +167,36 @@ Matrix4_RotateZ(float Angle)
 	Result.AxisX = (vector4){C, S, 0, 0};
 	Result.AxisY = (vector4){-S, C, 0, 0};
 	Result.AxisZ = Vector4_UnitZ();
+	Result.AxisW = Vector4_UnitW();
+	return Result;
+}
+
+static matrix4
+Matrix4_RotateAround(vector3 Axis, float Angle)
+{
+	Axis = Vector3_Unit(Axis);
+	float C = cosf(Angle);
+	float S = sinf(Angle);
+	float OMC = 1 - C;
+	float X2 = Axis.X * Axis.X;
+	float Y2 = Axis.Y * Axis.Y;
+	float Z2 = Axis.Z * Axis.Z;
+	float XY = Axis.X * Axis.Y;
+	float XZ = Axis.X * Axis.Z;
+	float YZ = Axis.Y * Axis.Z;
+	matrix4 Result;
+	Result.AxisX.X = X2*OMC + C;
+	Result.AxisX.Y = XY*OMC + Axis.Z*S;
+	Result.AxisX.Z = XZ*OMC - Axis.Y*S;
+	Result.AxisX.W = 0;
+	Result.AxisY.X = XY*OMC - Axis.Z*S;
+	Result.AxisY.Y = Y2*OMC + C;
+	Result.AxisY.Z = YZ*OMC + Axis.X*S;
+	Result.AxisY.W = 0;
+	Result.AxisZ.X = XZ*OMC + Axis.Y*S;
+	Result.AxisZ.Y = YZ*OMC - Axis.X*S;
+	Result.AxisZ.Z = Z2*OMC + C;
+	Result.AxisZ.W = 0;
 	Result.AxisW = Vector4_UnitW();
 	return Result;
 }
