@@ -168,18 +168,55 @@ GetFileContents(char* FileName, DWORD* FileSize)
 	return Result;
 }
 
-float Rect[] =
+float Cube[] =
 {
-	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-	0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-	0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-};
+	// front
+	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
 
-GLuint Indices[] =
-{
-	0, 1, 2,
-	1, 2, 3,	
+	// left
+	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+
+	// bottom
+	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+	0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
+
+	// top
+	-0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
+	0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+
+	// right
+	0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+	0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+
+	// back
+	-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+	0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
 };
 
 void WinMainCRTStartup()
@@ -192,16 +229,12 @@ void WinMainCRTStartup()
 
 	GLuint VertexArray;
 	GLuint VertexBuffer;
-	GLuint IndexBuffer;
 	glGenVertexArrays(1, &VertexArray);
 	glGenBuffers(1, &VertexBuffer);
-	glGenBuffers(1, &IndexBuffer);
 
 	glBindVertexArray(VertexArray);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Rect), Rect, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
@@ -248,19 +281,21 @@ void WinMainCRTStartup()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(Data);
-
+	LARGE_INTEGER Frequency;
+	LARGE_INTEGER Counter;
+	QueryPerformanceFrequency(&Frequency);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 	RECT WindowRect;
 	GetClientRect(Window, &WindowRect);
 	int WindowWidth = WindowRect.right - WindowRect.left;
 	int WindowHeight = WindowRect.bottom - WindowRect.top;
-	matrix4 Model = Matrix4_RotateX(to_radians(-55.0f));
 	matrix4 View = Matrix4_Translate((vector3){0, 0, -3});
 	matrix4 Perspective = Matrix4_Perspective(to_radians(90.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&View);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
+	glEnable(GL_DEPTH_TEST);
+
 	MSG Message = {0};
 	for(;;)
 	{
@@ -272,9 +307,14 @@ void WinMainCRTStartup()
 			}
 			DispatchMessageW(&Message);
 		}
+		QueryPerformanceCounter(&Counter);
+		float Angle = Counter.QuadPart/10000000.0f;
+		vector3 RotationAxis = {0.5f, 1.0f, 0.0f};
+		matrix4 Model = Matrix4_RotateAround(RotationAxis, Angle);
+		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		SwapBuffers(WindowDC);
 	}
 }
