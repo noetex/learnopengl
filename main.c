@@ -311,6 +311,9 @@ void WinMainCRTStartup()
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	glEnable(GL_DEPTH_TEST);
 
+	LARGE_INTEGER Frequency;
+	LARGE_INTEGER Counter;
+	QueryPerformanceFrequency(&Frequency);
 	MSG Message = {0};
 	for(;;)
 	{
@@ -327,6 +330,11 @@ void WinMainCRTStartup()
 		for(int Index = 0; Index < 10; Index += 1)
 		{
 			float Angle = 20.0f * Index;
+			if((Index % 3) == 0)
+			{
+				QueryPerformanceCounter(&Counter);
+				Angle = (float)Counter.QuadPart/Frequency.QuadPart * 50;
+			}
 			matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, to_radians(Angle));
 			matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
 			Model = Matrix4_MultiplyMatrix4(Translation, Model);
