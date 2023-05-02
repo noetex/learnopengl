@@ -14,12 +14,6 @@
 
 #define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)
 
-#pragma comment(lib, "kernel32")
-#pragma comment(lib, "user32")
-#pragma comment(lib, "gdi32")
-#pragma comment(lib, "opengl32")
-#pragma comment(lib, "libucrt")
-
 #pragma function(memcpy)
 static void*
 memcpy(void* Dest, void* Src, size_t NumBytes)
