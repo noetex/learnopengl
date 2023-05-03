@@ -22,6 +22,23 @@ typedef struct
 } matrix4;
 
 static vector3
+Vector3_UnitY(void)
+{
+	vector3 Result = {0, 1, 0};
+	return Result;
+}
+
+static vector3
+Vector3_Sub(vector3 V1, vector3 V2)
+{
+	vector3 Result;
+	Result.X = V1.X - V2.X;
+	Result.Y = V1.Y - V2.Y;
+	Result.Z = V1.Z - V2.Z;
+	return Result;
+}
+
+static vector3
 Vector3_Scale(vector3 V, float Scale)
 {
 	vector3 Result;
@@ -32,21 +49,47 @@ Vector3_Scale(vector3 V, float Scale)
 }
 
 static float
+Vector3_Dot(vector3 V1, vector3 V2)
+{
+	float Result = (V1.X * V2.X) + (V1.Y * V2.Y) + (V1.Z * V2.Z);
+	return Result;
+}
+
+static vector3
+Vector3_Cross(vector3 V1, vector3 V2)
+{
+	vector3 Result;
+	Result.X = (V1.Y * V2.Z) - (V1.Z * V2.Y);
+	Result.Y = (V1.Z * V2.X) - (V1.X * V2.Z);
+	Result.Z = (V1.X * V2.Y) - (V1.Y * V2.X);
+	return Result;
+}
+
+static float
+Vector3_Length2(vector3 V)
+{
+	float Result = Vector3_Dot(V, V);
+	return Result;
+}
+
+static float
 Vector3_Length(vector3 V)
 {
-	float Result = sqrtf(V.X*V.X + V.Y*V.Y + V.Z*V.Z);
+	float Length2 = Vector3_Length2(V);
+	float Result = sqrtf(Length2);
 	return Result;
 }
 
 static vector3
 Vector3_Unit(vector3 V)
 {
-	float Length = Vector3_Length(V);
-	vector3 Result = V;
-	if(Length != 0)
+	float Length2 = Vector3_Length2(V);
+	if((Length2 == 0) || (Length2 == 1))
 	{
-		Result = Vector3_Scale(V, 1/Length);
+		return V;
 	}
+	float Length = sqrtf(Length2);
+	vector3 Result = Vector3_Scale(V, 1/Length);
 	return Result;
 }
 
@@ -222,5 +265,23 @@ Matrix4_Perspective(float FieldOfView, float AspectRatio, float Near, float Far)
 	Result.AxisY = (vector4){0, F, 0, 0};
 	Result.AxisZ = (vector4){0, 0, Q*(Far+Near), -1};
 	Result.AxisW = (vector4){0, 0, Q*(2*Far*Near), 0};
+	return Result;
+}
+
+static matrix4
+Matrix4_LookAt(vector3 From, vector3 To, vector3 UpDirection)
+{
+	vector3 LookDirection = Vector3_Sub(To, From);
+	vector3 RightDirection = Vector3_Cross(UpDirection, LookDirection);
+	vector3 Front = Vector3_Unit(LookDirection);
+	vector3 Right = Vector3_Unit(RightDirection);
+	vector3 Up = Vector3_Unit(UpDirection);
+	matrix4 Transform;
+	Transform.AxisX = (vector4){Right.X, Up.X, Front.X, 0};
+	Transform.AxisY = (vector4){Right.Y, Up.Y, Front.Y, 0};
+	Transform.AxisZ = (vector4){Right.Z, Up.Z, Front.Z, 0};
+	Transform.AxisW = Vector4_UnitW();
+	matrix4 Translation = Matrix4_Translate(Vector3_Scale(From, 1));
+	matrix4 Result = Matrix4_MultiplyMatrix4(Transform, Translation);
 	return Result;
 }
