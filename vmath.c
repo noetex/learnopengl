@@ -22,9 +22,33 @@ typedef struct
 } matrix4;
 
 static vector3
+Vector3_UnitX(void)
+{
+	vector3 Result = {1, 0, 0};
+	return Result;
+}
+
+static vector3
 Vector3_UnitY(void)
 {
 	vector3 Result = {0, 1, 0};
+	return Result;
+}
+
+static vector3
+Vector3_UnitZ(void)
+{
+	vector3 Result = {0, 0, 1};
+	return Result;
+}
+
+static vector3
+Vector3_Add(vector3 V1, vector3 V2)
+{
+	vector3 Result;
+	Result.X = V1.X + V2.X;
+	Result.Y = V1.Y + V2.Y;
+	Result.Z = V1.Z + V2.Z;
 	return Result;
 }
 
