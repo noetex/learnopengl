@@ -11,6 +11,7 @@
 #include"opengl.c"
 #include"shader.c"
 #include"vmath.c"
+#include"camera.c"
 
 #define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)
 
@@ -303,6 +304,12 @@ void WinMainCRTStartup()
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	glEnable(GL_DEPTH_TEST);
 
+	camera Camera;
+	Camera.Position = (vector3){0, 0, 3};
+	Camera.Right = Vector3_UnitX();
+	Camera.Up = Vector3_UnitY();
+	Camera.Front = Vector3_UnitZ();
+	float CameraSpeed = 0.01f;
 	LARGE_INTEGER Frequency;
 	LARGE_INTEGER Counter;
 	QueryPerformanceFrequency(&Frequency);
@@ -316,19 +323,35 @@ void WinMainCRTStartup()
 			{
 				ExitProcess(0);
 			}
+			TranslateMessage(&Message);
 			DispatchMessageW(&Message);
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+		if(GetAsyncKeyState('W') >> 15)
+		{
+			vector3 Step = Vector3_Scale((vector3){0, 0, -1}, CameraSpeed);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
+		}
+		if(GetAsyncKeyState('S') >> 15)
+		{
+			vector3 Step = Vector3_Scale((vector3){0, 0, 1}, CameraSpeed);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
+		}
+		if(GetAsyncKeyState('A') >> 15)
+		{
+			vector3 Step = Vector3_Scale((vector3){-1, 0, 0}, CameraSpeed);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
+		}
+		if(GetAsyncKeyState('D') >> 15)
+		{
+			vector3 Step = Vector3_Scale((vector3){1, 0, 0}, CameraSpeed);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
+		}
 		QueryPerformanceCounter(&Counter);
-		float Time = (float)Counter.QuadPart/Frequency.QuadPart;
-		float CameraX = sinf(Time) * Radius;
-		float CameraZ = cosf(Time) * Radius;
-		vector3 CameraPosition = (vector3){CameraX, 0, CameraZ};
-		vector3 Target = (vector3){0};
-		vector3 Up = Vector3_UnitY();
-		matrix4 View = Matrix4_LookAt(CameraPosition, Target, Up);
+		matrix4 View = CameraView(Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
 
 		for(int Index = 0; Index < 10; Index += 1)
