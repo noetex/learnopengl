@@ -310,10 +310,7 @@ void WinMainCRTStartup()
 	Camera.Up = Vector3_UnitY();
 	Camera.Front = Vector3_UnitZ();
 	float CameraSpeed = 0.01f;
-	LARGE_INTEGER Frequency;
-	LARGE_INTEGER Counter;
-	QueryPerformanceFrequency(&Frequency);
-	float Radius = 10;
+
 	MSG Message = {0};
 	for(;;)
 	{
@@ -328,7 +325,6 @@ void WinMainCRTStartup()
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		if(GetAsyncKeyState('W') >> 15)
 		{
@@ -350,7 +346,6 @@ void WinMainCRTStartup()
 			vector3 Step = Vector3_Scale((vector3){1, 0, 0}, CameraSpeed);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
-		QueryPerformanceCounter(&Counter);
 		matrix4 View = CameraView(Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
 
