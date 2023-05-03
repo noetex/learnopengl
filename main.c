@@ -299,15 +299,14 @@ void WinMainCRTStartup()
 	GetClientRect(Window, &WindowRect);
 	int WindowWidth = WindowRect.right - WindowRect.left;
 	int WindowHeight = WindowRect.bottom - WindowRect.top;
-	matrix4 View = Matrix4_Translate((vector3){0, 0, -3});
 	matrix4 Perspective = Matrix4_Perspective(to_radians(45.0f), (float)WindowHeight/WindowWidth, 0.1f, 100.0f);
-	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&View);
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	glEnable(GL_DEPTH_TEST);
 
 	LARGE_INTEGER Frequency;
 	LARGE_INTEGER Counter;
 	QueryPerformanceFrequency(&Frequency);
+	float Radius = 10;
 	MSG Message = {0};
 	for(;;)
 	{
@@ -321,15 +320,21 @@ void WinMainCRTStartup()
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		QueryPerformanceCounter(&Counter);
+		float Time = (float)Counter.QuadPart/Frequency.QuadPart;
+		float CameraX = sinf(Time) * Radius;
+		float CameraZ = cosf(Time) * Radius;
+		vector3 CameraPosition = (vector3){CameraX, 0, CameraZ};
+		vector3 Target = (vector3){0};
+		vector3 Up = Vector3_UnitY();
+		matrix4 View = Matrix4_LookAt(CameraPosition, Target, Up);
+		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
+
 		for(int Index = 0; Index < 10; Index += 1)
 		{
 			float Angle = 20.0f * Index;
-			if((Index % 3) == 0)
-			{
-				QueryPerformanceCounter(&Counter);
-				Angle = (float)Counter.QuadPart/Frequency.QuadPart * 50;
-			}
-			matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, to_radians(Angle));
+			matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, Angle);
 			matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
 			Model = Matrix4_MultiplyMatrix4(Translation, Model);
 			glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
