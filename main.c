@@ -232,6 +232,16 @@ vector3 CubePositions[] =
 	{-1.3f, 1.0f, -1.5f},
 };
 
+static void
+LockCursor(HWND Window)
+{
+	RECT WindowRect;
+	GetClientRect(Window, &WindowRect);
+	int CursorX = (WindowRect.right + WindowRect.left)/2;
+	int CursorY = (WindowRect.bottom + WindowRect.top)/2;
+	SetCursorPos(CursorX, CursorY);
+}
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -239,6 +249,7 @@ void WinMainCRTStartup()
 	HDC WindowDC = GetDC(Window);
 	SetOpenGLContext(Window);
 	LoadOpenGLFunctions();
+	ShowCursor(FALSE);
 
 	GLuint VertexArray;
 	GLuint VertexBuffer;
@@ -328,6 +339,7 @@ void WinMainCRTStartup()
 			TranslateMessage(&Message);
 			DispatchMessageW(&Message);
 		}
+		LockCursor(Window);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		QueryPerformanceCounter(&T2);
