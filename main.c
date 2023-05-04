@@ -309,7 +309,12 @@ void WinMainCRTStartup()
 	Camera.Right = Vector3_UnitX();
 	Camera.Up = Vector3_UnitY();
 	Camera.Front = Vector3_UnitZ();
-	float CameraSpeed = 0.01f;
+	float CameraSpeed = 10.0f;
+
+	LARGE_INTEGER Frequency = {0};
+	LARGE_INTEGER T1 = {0};
+	LARGE_INTEGER T2 = {0};
+	QueryPerformanceFrequency(&Frequency);
 
 	MSG Message = {0};
 	for(;;)
@@ -325,25 +330,26 @@ void WinMainCRTStartup()
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		QueryPerformanceCounter(&T2);
+		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
 		if(GetAsyncKeyState('W') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){0, 0, -1}, CameraSpeed);
+			vector3 Step = Vector3_Scale((vector3){0, 0, -1}, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('S') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){0, 0, 1}, CameraSpeed);
+			vector3 Step = Vector3_Scale((vector3){0, 0, 1}, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('A') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){-1, 0, 0}, CameraSpeed);
+			vector3 Step = Vector3_Scale((vector3){-1, 0, 0}, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('D') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){1, 0, 0}, CameraSpeed);
+			vector3 Step = Vector3_Scale((vector3){1, 0, 0}, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		matrix4 View = CameraView(Camera);
@@ -359,5 +365,6 @@ void WinMainCRTStartup()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		SwapBuffers(WindowDC);
+		T1 = T2;
 	}
 }
