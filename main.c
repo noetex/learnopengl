@@ -242,6 +242,21 @@ LockCursor(HWND Window)
 	SetCursorPos(CursorX, CursorY);
 }
 
+static void
+ProcessWindowsMessages(void)
+{
+	MSG Message;
+	while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE))
+	{
+		if(Message.message == WM_QUIT)
+		{
+			ExitProcess(0);
+		}
+		TranslateMessage(&Message);
+		DispatchMessageW(&Message);
+	}
+}
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -327,18 +342,9 @@ void WinMainCRTStartup()
 	LARGE_INTEGER T2 = {0};
 	QueryPerformanceFrequency(&Frequency);
 
-	MSG Message = {0};
 	for(;;)
 	{
-		while(PeekMessageW(&Message, 0, 0, 0, PM_REMOVE))
-		{
-			if(Message.message == WM_QUIT)
-			{
-				ExitProcess(0);
-			}
-			TranslateMessage(&Message);
-			DispatchMessageW(&Message);
-		}
+		ProcessWindowsMessages();
 		LockCursor(Window);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
