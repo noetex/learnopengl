@@ -352,22 +352,22 @@ void WinMainCRTStartup()
 		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
 		if(GetAsyncKeyState('W') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){0, 0, -1}, CameraSpeed*DeltaTime);
+			vector3 Step = Vector3_Scale(Camera.Front, -CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('S') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){0, 0, 1}, CameraSpeed*DeltaTime);
+			vector3 Step = Vector3_Scale(Camera.Front, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('A') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){-1, 0, 0}, CameraSpeed*DeltaTime);
+			vector3 Step = Vector3_Scale(Camera.Right, -CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('D') >> 15)
 		{
-			vector3 Step = Vector3_Scale((vector3){1, 0, 0}, CameraSpeed*DeltaTime);
+			vector3 Step = Vector3_Scale(Camera.Right, CameraSpeed*DeltaTime);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		matrix4 View = CameraView(Camera);
