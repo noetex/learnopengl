@@ -330,13 +330,13 @@ void WinMainCRTStartup()
 	glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Perspective"), 1, GL_FALSE, (float*)&Perspective);
 	glEnable(GL_DEPTH_TEST);
 
-	camera Camera;
+	camera Camera = {0};
 	Camera.Position = (vector3){0, 0, 3};
 	Camera.Right = Vector3_UnitX();
 	Camera.Up = Vector3_UnitY();
 	Camera.Front = Vector3_UnitZ();
 	float CameraSpeed = 10.0f;
-
+	float CameraSensitivity = 5.0f;
 	LARGE_INTEGER Frequency = {0};
 	LARGE_INTEGER T1 = {0};
 	LARGE_INTEGER T2 = {0};
@@ -351,6 +351,7 @@ void WinMainCRTStartup()
 		QueryPerformanceCounter(&T2);
 		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
 		float MoveStep = CameraSpeed * DeltaTime;
+		float RotationStep = CameraSensitivity * DeltaTime;
 		if(GetAsyncKeyState('W') >> 15)
 		{
 			Camera.Position.Z -= MoveStep;
@@ -366,6 +367,22 @@ void WinMainCRTStartup()
 		if(GetAsyncKeyState('D') >> 15)
 		{
 			Camera.Position.X += MoveStep;
+		}
+		if(GetAsyncKeyState('I') >> 15)
+		{
+			Camera.Pitch += RotationStep;
+		}
+		if(GetAsyncKeyState('K') >> 15)
+		{
+			Camera.Pitch -= RotationStep;
+		}
+		if(GetAsyncKeyState('J') >> 15)
+		{
+			Camera.Yaw += RotationStep;
+		}
+		if(GetAsyncKeyState('L') >> 15)
+		{
+			Camera.Yaw -= RotationStep;
 		}
 		matrix4 View = CameraView(Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
