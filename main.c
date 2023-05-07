@@ -350,25 +350,22 @@ void WinMainCRTStartup()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		QueryPerformanceCounter(&T2);
 		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
+		float MoveStep = CameraSpeed * DeltaTime;
 		if(GetAsyncKeyState('W') >> 15)
 		{
-			vector3 Step = Vector3_Scale(Camera.Front, -CameraSpeed*DeltaTime);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.Z -= MoveStep;
 		}
 		if(GetAsyncKeyState('S') >> 15)
 		{
-			vector3 Step = Vector3_Scale(Camera.Front, CameraSpeed*DeltaTime);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.Z += MoveStep;
 		}
 		if(GetAsyncKeyState('A') >> 15)
 		{
-			vector3 Step = Vector3_Scale(Camera.Right, -CameraSpeed*DeltaTime);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.X -= MoveStep;
 		}
 		if(GetAsyncKeyState('D') >> 15)
 		{
-			vector3 Step = Vector3_Scale(Camera.Right, CameraSpeed*DeltaTime);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.X += MoveStep;
 		}
 		matrix4 View = CameraView(Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
