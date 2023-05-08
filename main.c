@@ -13,6 +13,9 @@
 #include"vmath.c"
 #include"camera.c"
 
+#define HID_USAGE_PAGE_GENERIC 0x01
+#define HID_USAGE_GENERIC_MOUSE 0x02
+
 #define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)
 
 #pragma function(memcpy)
@@ -90,6 +93,23 @@ WindowProc(HWND Window, UINT Message, WPARAM wParam, LPARAM lParam)
 			int WindowWidth = WindowRect.right - WindowRect.left;
 			int WindowHeight = WindowRect.bottom - WindowRect.top;
 			glViewport(0, 0, WindowWidth, WindowHeight);
+		} break;
+
+		case WM_INPUT:
+		{
+			RAWINPUT Device;
+			HRAWINPUT Mouse = (HRAWINPUT)lParam;
+			UINT InputBufferSize = sizeof(Device);
+			UINT BytesCopied = GetRawInputData(Mouse, RID_INPUT, &Device, &InputBufferSize, sizeof(Device.header));
+			Assert(BytesCopied == InputBufferSize);
+			float MouseSensitivity = 0.001f;
+			Assert(Device.data.mouse.usFlags == MOUSE_MOVE_RELATIVE);
+			LONG DeltaX = Device.data.mouse.lLastX;
+			LONG DeltaY = Device.data.mouse.lLastY;
+			camera* Camera = (camera*)GetWindowLongPtrW(Window, GWLP_USERDATA);
+			Assert(Camera);
+			Camera->Yaw -= DeltaX * MouseSensitivity;
+			Camera->Pitch -= DeltaY * MouseSensitivity;
 		} break;
 
 		case WM_CLOSE:
@@ -257,6 +277,18 @@ ProcessWindowsMessages(void)
 	}
 }
 
+static void
+SetupInput(HWND Window)
+{
+	RAWINPUTDEVICE Mouse = {0};
+	Mouse.usUsagePage = HID_USAGE_PAGE_GENERIC;
+	Mouse.usUsage = HID_USAGE_GENERIC_MOUSE;
+	//Mouse.dwFlags = RIDEV_CAPTUREMOUSE
+	Mouse.dwFlags = RIDEV_INPUTSINK;
+	Mouse.hwndTarget = Window;
+	RegisterRawInputDevices(&Mouse, 1, sizeof(Mouse));
+}
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -265,6 +297,7 @@ void WinMainCRTStartup()
 	SetOpenGLContext(Window);
 	LoadOpenGLFunctions();
 	ShowCursor(FALSE);
+	SetupInput(Window);
 
 	GLuint VertexArray;
 	GLuint VertexBuffer;
@@ -335,8 +368,10 @@ void WinMainCRTStartup()
 	Camera.Right = Vector3_UnitX();
 	Camera.Up = Vector3_UnitY();
 	Camera.Front = Vector3_UnitZ();
+	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&Camera);
 	float CameraSpeed = 10.0f;
 	float CameraSensitivity = 5.0f;
+
 	LARGE_INTEGER Frequency = {0};
 	LARGE_INTEGER T1 = {0};
 	LARGE_INTEGER T2 = {0};
