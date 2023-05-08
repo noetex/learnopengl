@@ -391,13 +391,15 @@ void WinMainCRTStartup()
 		{
 			vector3 Backward = Camera_AxisZ(Camera);
 			vector3 Step = Vector3_Scale(Backward, -MoveStep);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.X += Step.X;
+			Camera.Position.Z += Step.Z;
 		}
 		if(GetAsyncKeyState('S') >> 15)
 		{
 			vector3 Backward = Camera_AxisZ(Camera);
 			vector3 Step = Vector3_Scale(Backward, MoveStep);
-			Camera.Position = Vector3_Add(Camera.Position, Step);
+			Camera.Position.X += Step.X;
+			Camera.Position.Z += Step.Z;
 		}
 		if(GetAsyncKeyState('A') >> 15)
 		{
