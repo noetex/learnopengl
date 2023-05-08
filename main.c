@@ -389,19 +389,27 @@ void WinMainCRTStartup()
 		float RotationStep = CameraSensitivity * DeltaTime;
 		if(GetAsyncKeyState('W') >> 15)
 		{
-			Camera.Position.Z -= MoveStep;
+			vector3 Backward = Camera_AxisZ(Camera);
+			vector3 Step = Vector3_Scale(Backward, -MoveStep);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('S') >> 15)
 		{
-			Camera.Position.Z += MoveStep;
+			vector3 Backward = Camera_AxisZ(Camera);
+			vector3 Step = Vector3_Scale(Backward, MoveStep);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('A') >> 15)
 		{
-			Camera.Position.X -= MoveStep;
+			vector3 Left = Camera_AxisX(Camera);
+			vector3 Step = Vector3_Scale(Left, -MoveStep);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('D') >> 15)
 		{
-			Camera.Position.X += MoveStep;
+			vector3 Left = Camera_AxisX(Camera);
+			vector3 Step = Vector3_Scale(Left, MoveStep);
+			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
 		if(GetAsyncKeyState('I') >> 15)
 		{

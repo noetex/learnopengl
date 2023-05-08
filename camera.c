@@ -23,6 +23,36 @@ CameraView(camera Camera)
 }
 #endif
 
+static vector3
+Camera_AxisX(camera Camera)
+{
+	vector3 Result;
+	Result.X = cosf(Camera.Yaw);
+	Result.Y = 0;
+	Result.Z = -sinf(Camera.Yaw);
+	return Result;
+}
+
+static vector3
+Camera_AxisY(camera Camera)
+{
+	vector3 Result;
+	Result.X = sinf(Camera.Yaw) * sinf(Camera.Pitch);
+	Result.Y = cosf(Camera.Pitch);
+	Result.Z = cosf(Camera.Yaw) * cosf(Camera.Pitch);
+	return Result;
+}
+
+static vector3
+Camera_AxisZ(camera Camera)
+{
+	vector3 Result;
+	Result.X = sinf(Camera.Yaw) * cosf(Camera.Pitch);
+	Result.Y = -sinf(Camera.Pitch);
+	Result.Z = cosf(Camera.Yaw) * cosf(Camera.Pitch);
+	return Result;
+}
+
 static matrix4
 CameraView(camera Camera)
 {
