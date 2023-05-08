@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include<windows.h>
 #include<stdint.h>
 
@@ -411,7 +412,7 @@ void WinMainCRTStartup()
 			vector3 Step = Vector3_Scale(Left, MoveStep);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
 		}
-		matrix4 View = CameraView(Camera);
+		matrix4 View = CameraView(&Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
 
 		for(int Index = 0; Index < 10; Index += 1)
