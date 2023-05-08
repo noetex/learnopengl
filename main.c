@@ -370,7 +370,6 @@ void WinMainCRTStartup()
 	Camera.Front = Vector3_UnitZ();
 	SetWindowLongPtrW(Window, GWLP_USERDATA, (LONG_PTR)&Camera);
 	float CameraSpeed = 10.0f;
-	float CameraSensitivity = 5.0f;
 
 	LARGE_INTEGER Frequency = {0};
 	LARGE_INTEGER T1 = {0};
@@ -386,7 +385,6 @@ void WinMainCRTStartup()
 		QueryPerformanceCounter(&T2);
 		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
 		float MoveStep = CameraSpeed * DeltaTime;
-		float RotationStep = CameraSensitivity * DeltaTime;
 		if(GetAsyncKeyState('W') >> 15)
 		{
 			vector3 Backward = Camera_AxisZ(Camera);
@@ -412,22 +410,6 @@ void WinMainCRTStartup()
 			vector3 Left = Camera_AxisX(Camera);
 			vector3 Step = Vector3_Scale(Left, MoveStep);
 			Camera.Position = Vector3_Add(Camera.Position, Step);
-		}
-		if(GetAsyncKeyState('I') >> 15)
-		{
-			Camera.Pitch += RotationStep;
-		}
-		if(GetAsyncKeyState('K') >> 15)
-		{
-			Camera.Pitch -= RotationStep;
-		}
-		if(GetAsyncKeyState('J') >> 15)
-		{
-			Camera.Yaw += RotationStep;
-		}
-		if(GetAsyncKeyState('L') >> 15)
-		{
-			Camera.Yaw -= RotationStep;
 		}
 		matrix4 View = CameraView(Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
