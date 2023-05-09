@@ -291,21 +291,3 @@ Matrix4_Perspective(float FieldOfView, float AspectRatio, float Near, float Far)
 	Result.AxisW = (vector4){0, 0, Q*(2*Far*Near), 0};
 	return Result;
 }
-
-static matrix4
-Matrix4_LookAt(vector3 From, vector3 To, vector3 UpDirection)
-{
-	vector3 LookDirection = Vector3_Sub(To, From);
-	vector3 RightDirection = Vector3_Cross(UpDirection, LookDirection);
-	vector3 Front = Vector3_Unit(LookDirection);
-	vector3 Right = Vector3_Unit(RightDirection);
-	vector3 Up = Vector3_Unit(UpDirection);
-	matrix4 Transform;
-	Transform.AxisX = (vector4){Right.X, Up.X, Front.X, 0};
-	Transform.AxisY = (vector4){Right.Y, Up.Y, Front.Y, 0};
-	Transform.AxisZ = (vector4){Right.Z, Up.Z, Front.Z, 0};
-	Transform.AxisW = Vector4_UnitW();
-	matrix4 Translation = Matrix4_Translate(Vector3_Scale(From, 1));
-	matrix4 Result = Matrix4_MultiplyMatrix4(Transform, Translation);
-	return Result;
-}
