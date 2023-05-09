@@ -290,6 +290,23 @@ SetupInput(HWND Window)
 	RegisterRawInputDevices(&Mouse, 1, sizeof(Mouse));
 }
 
+static void
+RenderFrame(HDC WindowDC, GLuint Program)
+{
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for(int Index = 0; Index < 10; Index += 1)
+	{
+		float Angle = 20.0f * Index;
+		matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, Angle);
+		matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
+		Model = Matrix4_MultiplyMatrix4(Translation, Model);
+		glUniformMatrix4fv(glGetUniformLocation(Program, "Model"), 1, GL_FALSE, (float*)&Model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	SwapBuffers(WindowDC);
+}
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -381,8 +398,6 @@ void WinMainCRTStartup()
 	{
 		ProcessWindowsMessages();
 		LockCursor(Window);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		QueryPerformanceCounter(&T2);
 		float DeltaTime = (float)(T2.QuadPart - T1.QuadPart)/Frequency.QuadPart;
 		float MoveStep = CameraSpeed * DeltaTime;
@@ -414,17 +429,7 @@ void WinMainCRTStartup()
 		}
 		matrix4 View = CameraView(&Camera);
 		glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "View"), 1, GL_FALSE, (float*)&(View));
-
-		for(int Index = 0; Index < 10; Index += 1)
-		{
-			float Angle = 20.0f * Index;
-			matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, Angle);
-			matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
-			Model = Matrix4_MultiplyMatrix4(Translation, Model);
-			glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "Model"), 1, GL_FALSE, (float*)&Model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		SwapBuffers(WindowDC);
+		RenderFrame(WindowDC, ShaderProgram);
 		T1 = T2;
 	}
 }
