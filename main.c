@@ -330,16 +330,9 @@ LoadTextureToMemory(char* FileName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void WinMainCRTStartup()
+static void
+LoadVertexDataToMemory(void)
 {
-	DisableDPIScaling();
-	HWND Window = CreateOpenGLWindow();
-	HDC WindowDC = GetDC(Window);
-	SetOpenGLContext(Window);
-	LoadOpenGLFunctions();
-	ShowCursor(FALSE);
-	SetupInput(Window);
-
 	GLuint VertexArray;
 	GLuint VertexBuffer;
 	glGenVertexArrays(1, &VertexArray);
@@ -352,6 +345,18 @@ void WinMainCRTStartup()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+}
+
+void WinMainCRTStartup()
+{
+	DisableDPIScaling();
+	HWND Window = CreateOpenGLWindow();
+	HDC WindowDC = GetDC(Window);
+	SetOpenGLContext(Window);
+	LoadOpenGLFunctions();
+	ShowCursor(FALSE);
+	SetupInput(Window);
+	LoadVertexDataToMemory();
 
 	GLuint VertexShader = CreateOpenGLShader("../shader.vert", GL_VERTEX_SHADER);
 	GLuint FragmentShader = CreateOpenGLShader("../shader.frag", GL_FRAGMENT_SHADER);
