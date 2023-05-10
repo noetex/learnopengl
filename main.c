@@ -365,12 +365,11 @@ void WinMainCRTStartup()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Textures[0]);
 	LoadTextureToMemory("../container.jpg");
+	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, Textures[1]);
 	LoadTextureToMemory("../awesomeface.png");
-
-	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
 
 	RECT WindowRect;
