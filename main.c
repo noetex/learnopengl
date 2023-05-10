@@ -307,6 +307,29 @@ RenderFrame(HDC WindowDC, GLuint Program)
 	SwapBuffers(WindowDC);
 }
 
+static void
+LoadTextureToMemory(char* FileName)
+{
+	DWORD FileSize;
+	char* Contents = GetFileContents(FileName, &FileSize);
+	int Width;
+	int Height;
+	int NumChannels;
+	unsigned char* Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
+	Assert(Data);
+	VirtualFree(Contents, 0, MEM_RELEASE);
+	Assert((NumChannels == 3) || (NumChannels == 4));
+	GLint Format = (NumChannels == 3) ? GL_RGB : GL_RGBA;
+	glTexImage2D(GL_TEXTURE_2D, 0, Format, Width, Height, 0, Format, GL_UNSIGNED_BYTE, Data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(Data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
 void WinMainCRTStartup()
 {
 	DisableDPIScaling();
@@ -335,44 +358,21 @@ void WinMainCRTStartup()
 	GLuint ShaderProgram = CreateOpenGLProgram(VertexShader, FragmentShader);
 	glUseProgram(ShaderProgram);
 
+	stbi_set_flip_vertically_on_load(1);
+
 	GLuint Textures[2];
 	glGenTextures(2, Textures);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Textures[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	DWORD FileSize = 0;
-	int Width;
-	int Height;
-	int NumChannels;
-	char* Contents = GetFileContents("../container.jpg", &FileSize);
-	stbi_set_flip_vertically_on_load(1);
-	unsigned char* Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
-	Assert(Data);
-	VirtualFree(Contents, 0, MEM_RELEASE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(Data);
+	LoadTextureToMemory("../container.jpg");
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, Textures[1]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	LoadTextureToMemory("../awesomeface.png");
 
-	Contents = GetFileContents("../awesomeface.png", &FileSize);
-	Data = stbi_load_from_memory(Contents, FileSize, &Width, &Height, &NumChannels, 0);
-	Assert(Data);
-	VirtualFree(Contents, 0, MEM_RELEASE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(Data);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture1"), 0);
 	glUniform1i(glGetUniformLocation(ShaderProgram, "Texture2"), 1);
+
 	RECT WindowRect;
 	GetClientRect(Window, &WindowRect);
 	int WindowWidth = WindowRect.right - WindowRect.left;
