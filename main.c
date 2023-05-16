@@ -77,7 +77,6 @@ Realloc(void* Memory, size_t OldSize, size_t NewSize)
 #define STBI_MALLOC(Size) Malloc(Size)
 #define STBI_FREE(Memory) Free(Memory)
 #define STBI_REALLOC_SIZED(Memory, OldSize, NewSize) Realloc(Memory, OldSize, NewSize)
-//#define STBI_NO_STDIO
 #include"stb_image.h"
 
 static LRESULT CALLBACK
@@ -284,7 +283,6 @@ SetupInput(HWND Window)
 	RAWINPUTDEVICE Mouse = {0};
 	Mouse.usUsagePage = HID_USAGE_PAGE_GENERIC;
 	Mouse.usUsage = HID_USAGE_GENERIC_MOUSE;
-	//Mouse.dwFlags = RIDEV_CAPTUREMOUSE
 	Mouse.dwFlags = RIDEV_INPUTSINK;
 	Mouse.hwndTarget = Window;
 	RegisterRawInputDevices(&Mouse, 1, sizeof(Mouse));
