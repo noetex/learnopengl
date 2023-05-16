@@ -7,3 +7,4 @@
 #define Min(A, B) (((A) < (B)) ? (A) : (B))
 #define Max(A, B) (((A) > (B)) ? (A) : (B))
 #define Clamp(Value, Lo, Hi) (Min(Hi, Max(Lo, Value)))
+#define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)

@@ -17,8 +17,6 @@
 #define HID_USAGE_PAGE_GENERIC 0x01
 #define HID_USAGE_GENERIC_MOUSE 0x02
 
-#define to_radians(Degrees) ((Degrees)/180.0f * (float)M_PI)
-
 #pragma function(memcpy)
 static void*
 memcpy(void* Dest, void* Src, size_t NumBytes)
