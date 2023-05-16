@@ -14,9 +14,6 @@
 #include"vmath.c"
 #include"camera.c"
 
-#define HID_USAGE_PAGE_GENERIC 0x01
-#define HID_USAGE_GENERIC_MOUSE 0x02
-
 #pragma function(memcpy)
 static void*
 memcpy(void* Dest, void* Src, size_t NumBytes)
@@ -278,6 +275,11 @@ ProcessWindowsMessages(void)
 static void
 SetupInput(HWND Window)
 {
+	enum from_win32_docs
+	{
+		HID_USAGE_PAGE_GENERIC = 0x01,
+		HID_USAGE_GENERIC_MOUSE = 0x02,
+	};
 	RAWINPUTDEVICE Mouse = {0};
 	Mouse.usUsagePage = HID_USAGE_PAGE_GENERIC;
 	Mouse.usUsage = HID_USAGE_GENERIC_MOUSE;
