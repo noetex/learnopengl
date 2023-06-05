@@ -293,10 +293,11 @@ RenderFrame(HDC WindowDC, GLuint Program)
 {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	for(int Index = 0; Index < 10; Index += 1)
+	vector3 RotationAxis = {1.0f, 0.3f, 0.5f};
+	for(int Index = 0; Index < ArrayLength(CubePositions); Index += 1)
 	{
 		float Angle = 20.0f * Index;
-		matrix4 Model = Matrix4_RotateAround((vector3){1.0f, 0.3f, 0.5f}, Angle);
+		matrix4 Model = Matrix4_RotateAround(RotationAxis, Angle);
 		matrix4 Translation = Matrix4_Translate(CubePositions[Index]);
 		Model = Matrix4_MultiplyMatrix4(Translation, Model);
 		glUniformMatrix4fv(glGetUniformLocation(Program, "Model"), 1, GL_FALSE, (float*)&Model);
